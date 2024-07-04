@@ -1,5 +1,10 @@
 package HomeWork;
 
+import HomeWork.constants.Path;
+import HomeWork.constants.UrlOperations;
+import HomeWork.dto.Post;
+import HomeWork.dto.Todo;
+import HomeWork.dto.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -17,13 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public  class SpecificApiUtils {
+public class ApiService {
 
-    public static void createNewUser(User user) {
+    public  void createNewUser(User user) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(user);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users"))
+                .uri(URI.create(Path.BASE_URL + "users"))
                 .header("Content-Type", "application/json; utf-8")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -39,12 +44,12 @@ public  class SpecificApiUtils {
         }
     }
 
-    public static void updateUser(User user) {
+    public  void updateUser(User user) {
         Gson gson = new Gson();
         String json = gson.toJson(user);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users/1"))
+                .uri(URI.create(Path.BASE_URL + "users/1"))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -62,9 +67,9 @@ public  class SpecificApiUtils {
         }
     }
 
-    public static void deleteUser(int userId) {
+    public void deleteUser(int userId) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users/" + userId))
+                .uri(URI.create(Path.BASE_URL + "users/" + userId))
                 .DELETE()
                 .build();
         HttpClient client = HttpClient.newHttpClient();
@@ -86,9 +91,9 @@ public  class SpecificApiUtils {
         }
     }
 
-    public static void getAllUsers() {
+    public  void getAllUsers() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users"))
+                .uri(URI.create(Path.BASE_URL + "users"))
                 .GET()
                 .build();
 
@@ -104,10 +109,10 @@ public  class SpecificApiUtils {
         System.out.println(response.body());
     }
 
-    public static void getUserById(int userId) {
+    public void getUserById(int userId) {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users" + "/" + userId))
+                .uri(URI.create(Path.BASE_URL + "users" + UrlOperations.DELIMITER + userId))
                 .GET()
                 .build();
         HttpClient client = HttpClient.newHttpClient();
@@ -122,9 +127,9 @@ public  class SpecificApiUtils {
         }
     }
 
-    public static void getUserByUserName(String userName) {
+    public  void getUserByUserName(String userName) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users?username=" + userName))
+                .uri(URI.create(Path.BASE_URL+"users?username=" +userName))
                 .GET()
                 .build();
 
@@ -141,13 +146,13 @@ public  class SpecificApiUtils {
         }
     }
 
-    public static void readCommentsFromEveryPostOfSpecificUser(int userId) {
+    public  void readCommentsFromEveryPostOfSpecificUser(int userId) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         Type postListType = new TypeToken<List<Post>>() {
         }.getType();
         List<Post> listOfUserPosts = new ArrayList<>();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users/" + userId + "/posts"))
+                .uri(URI.create(Path.BASE_URL+"users/" + userId + "/posts"))
                 .GET()
                 .build();
 
@@ -169,7 +174,7 @@ public  class SpecificApiUtils {
         listOfPostIds.stream()
                 .forEach((number) -> {
                     HttpRequest request1 = HttpRequest.newBuilder()
-                            .uri(URI.create("https://jsonplaceholder.typicode.com/posts/" + number + "/comments"))
+                            .uri(URI.create(Path.BASE_URL+"posts/" + number + "/comments"))
                             .GET()
                             .build();
                     HttpClient client1 = HttpClient.newHttpClient();
@@ -186,10 +191,11 @@ public  class SpecificApiUtils {
 
                 });
     }
-    public  static  void getOpenedTasksForSpecificUser(int userId){
+
+    public  void getOpenedTasksForSpecificUser(int userId) {
         Gson gson = new Gson();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://jsonplaceholder.typicode.com/users/"+Integer.toString(userId)+"/todos"))
+                .uri(URI.create(Path.BASE_URL+"users/" + Integer.toString(userId) + "/todos"))
                 .GET()
                 .build();
 
@@ -203,13 +209,13 @@ public  class SpecificApiUtils {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        List<Todo>responseAsList = Arrays.asList(gson.fromJson(response.body(), Todo[].class));
+        List<Todo> responseAsList = Arrays.asList(gson.fromJson(response.body(), Todo[].class));
 
         List<Todo> result = responseAsList.stream()
                 .filter(todo -> !(todo.isCompleted()))
                 .collect(Collectors.toList());
 
-        for(Todo task:result){
+        for (Todo task : result) {
             System.out.println(task);
         }
     }
@@ -217,122 +223,6 @@ public  class SpecificApiUtils {
 
 }
 
-class Post {
-    private int userId;
-    private int id;
-    private String title;
-    private String body;
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-}
-
-class User {
-    private String name;
-    private String email;
-    private int id;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-}
-
-class Todo {
-    private int userId;
-    private int id;
-    private String title;
-    private boolean completed;
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-    @Override
-    public String toString() {
-        return "Todo{" +
-                "userId=" + userId +
-                ", id=" + id +
-                ", title='" + title + '\'' +
-                ", completed=" + completed +
-                '}';
-    }
-}
 
 
